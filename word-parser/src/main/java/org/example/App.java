@@ -36,6 +36,6 @@ public class App
         String output = WordParser.parse("Creativity is thinking-up new things. Innovation is doing new things!");
 
         System.out.println("\n\nexpected: C6y is t4g-up n1w t4s. I6n is d3g n1w t4s!");
-        System.out.println(output);
+        System.out.println("result: "+output);
     }
 }
