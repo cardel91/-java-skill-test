@@ -3,6 +3,7 @@ package com.example.restfulwebservices.controller;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -40,52 +41,40 @@ public class UserCtrl {
 	}
 	
 	@GetMapping("/users/{id}")
-	User findById(@PathVariable Long id) {
+	User findById(@PathVariable String id) {
 		return userRepo.findById(id).orElseThrow(()-> new UserNotFoundException(id));
 	}
 	
 	@PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
-    User save(@RequestBody @Valid User user) throws ParseException
+    User save(@RequestBody @Valid User user)
     {
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-        // Input to be parsed should strictly follow the defined date format
-        // above.
-        format.setLenient(false);
-
-        try {
-        	format.parse(user.getBirthDate());
-            return userRepo.save(user);
-
-        } catch (ParseException e) {
-			// TODO: handle exception
-        	throw e;
-		}
+        return userRepo.save(user);
     }
 	
 	@PutMapping("/users/{id}")
-	User edit(@RequestBody User newUser, @PathVariable Long id) {
+	User edit(@RequestBody User newUser, @PathVariable String id) {
 		return userRepo.findById(id).map(user -> {
 			user.setBirthDate(newUser.getBirthDate());
 			user.setUsername(newUser.getUsername());
 			user.setFirstName(newUser.getFirstName());
 			user.setLastName(newUser.getLastName());
+			user.setUpdated(LocalDateTime.now());
 			return userRepo.save(user);
 		}).orElseGet(()-> {
 			newUser.setId(id);
-			return userRepo.save(newUser);
+			return save(newUser);
 		});
 	}
 	
 	@DeleteMapping("/users/{id}")
-	void delete(@PathVariable Long id) throws UserNotFoundException {
+	void delete(@PathVariable String id) throws UserNotFoundException {
 		try {
-			List<Post> posts = postRepo.getByUserId(id);
-			if (posts.size() > 0) {
-				
-				postRepo.deleteAll(posts);
-			}
+//			List<Post> posts = postRepo.getByUserId(id);
+//			if (posts.size() > 0) {
+//				
+//				postRepo.deleteAll(posts);
+//			}
 			userRepo.deleteById(id);
 		} catch (Exception e) {
 			throw new UserNotFoundException(id);

@@ -1,5 +1,7 @@
 package com.example.restfulwebservices;
 
+import java.time.LocalDate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -19,10 +21,11 @@ public class DataLoader {
 	@Bean
 	CommandLineRunner initDatabase(UserRepo userRepo, PostRepo postRepo) {
 		return args -> {
-			userRepo.save(new User("jdoe","John","Doe","1986-03-12"));
+			User u = new User("jdoe","John","Doe", LocalDate.parse("1986-03-12"));
+			userRepo.save(u);
 			userRepo.findAll().forEach(user-> log.info("Preloaded "+user));
 			
-			postRepo.save(new Post(1l, "My first post"));
+			postRepo.save(new Post(u, "My first post"));
 			postRepo.findAll().forEach(post-> log.info("Preloaded "+post));
 			
 		};

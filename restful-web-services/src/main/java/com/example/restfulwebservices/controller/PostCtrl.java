@@ -1,5 +1,6 @@
 package com.example.restfulwebservices.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restfulwebservices.model.Post;
-import com.example.restfulwebservices.model.User;
 import com.example.restfulwebservices.repository.PostRepo;
 
 @RestController
@@ -29,11 +29,11 @@ public class PostCtrl {
 	
 	@GetMapping("/posts")
 	List<Post> findAll() {
-		return (List<Post>) postRepo.findAll();
+		return postRepo.findAll();
 	}
 	
 	@GetMapping("/posts/{id}")
-	Post findById(@PathVariable Long id) {
+	Post findById(@PathVariable String id) {
 		return postRepo.findById(id).orElseThrow(()-> new PostNotFoundException(id));
 	}
 	
@@ -45,19 +45,20 @@ public class PostCtrl {
     }
 	
 	@PutMapping("/posts/{id}")
-	Post edit(@RequestBody Post newPost, @PathVariable Long id) {
+	Post edit(@RequestBody Post newPost, @PathVariable String id) {
 		return postRepo.findById(id).map(post -> {
-			post.setUserId(newPost.getUserId());
+			post.setUser(newPost.getUser());
 			post.setTitle(newPost.getTitle());
+			post.setUpdated(LocalDateTime.now());
 			return postRepo.save(post);
 		}).orElseGet(()-> {
 			newPost.setId(id);
-			return postRepo.save(newPost);
+			return save(newPost);
 		});
 	}
 	
 	@DeleteMapping("/posts/{id}")
-	void delete(@PathVariable Long id) {
+	void delete(@PathVariable String id) {
 		postRepo.deleteById(id);
 	}
 	

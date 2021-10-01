@@ -1,43 +1,49 @@
 package com.example.restfulwebservices.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
+
+import com.example.restfulwebservices.controller.ModelSerializer;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Entity
-public class Post {
+public class Post extends Model {
 	
-	@Id
-	@GeneratedValue
-	private Long id;
-	private Long userId;
+//	private Long userId;
 	private String title;
 	
+	@ManyToOne()
+//	@MapsId
+	@JoinColumn(name="user_id")
+	@NotNull
+	@JsonProperty("userId")
+	@JsonSerialize(using = ModelSerializer.class)
+	private User user;
+	@PastOrPresent
+	private LocalDateTime created = LocalDateTime.now();
+	@PastOrPresent
+	private LocalDateTime updated = LocalDateTime.now();
+	
 	public Post() {	}
-	
-	
 
-	public Post(Long userId, String title) {
-		this.userId = userId;
+	public Post(User user, String title) {
+		this.user = user;
 		this.title = title;
 	}
 
-
-
-	public Long getId() {
-		return id;
+	public User getUser() {
+		return user;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public String getTitle() {
@@ -48,13 +54,31 @@ public class Post {
 		this.title = title;
 	}
 
+	public LocalDateTime getCreated() {
+		return created;
+	}
+
+	public void setCreated(LocalDateTime created) {
+		this.created = created;
+	}
+
+
+	public LocalDateTime getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(LocalDateTime updated) {
+		this.updated = updated;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((created == null) ? 0 : created.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
-		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+		result = prime * result + ((updated == null) ? 0 : updated.hashCode());
+		result = prime * result + ((user == null) ? 0 : user.hashCode());
 		return result;
 	}
 
@@ -67,27 +91,32 @@ public class Post {
 		if (getClass() != obj.getClass())
 			return false;
 		Post other = (Post) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (created == null) {
+			if (other.created != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!created.equals(other.created))
 			return false;
 		if (title == null) {
 			if (other.title != null)
 				return false;
 		} else if (!title.equals(other.title))
 			return false;
-		if (userId == null) {
-			if (other.userId != null)
+		if (updated == null) {
+			if (other.updated != null)
 				return false;
-		} else if (!userId.equals(other.userId))
+		} else if (!updated.equals(other.updated))
+			return false;
+		if (user == null) {
+			if (other.user != null)
+				return false;
+		} else if (!user.equals(other.user))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Post {id=" + id + ", userId=" + userId + ", title=" + title + "}";
+		return "Post {id="+id+", title=" + title + ", user=" + user.getId() + ", created=" + created + ", updated=" + updated + "}";
 	}
 
 }
