@@ -16,50 +16,56 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.restfulwebservices.model.Post;
+import com.example.restfulwebservices.model.User;
 import com.example.restfulwebservices.repository.PostRepo;
+import com.example.restfulwebservices.repository.UserRepo;
 
 @RestController
 public class PostCtrl {
 	
 	private final PostRepo postRepo;
+	private final UserRepo userRepo; 
 
-	public PostCtrl(PostRepo postRepo) {
+	public PostCtrl(PostRepo postRepo, UserRepo userRepo) {
 		this.postRepo = postRepo;
+		this.userRepo = userRepo;
 	}
 	
-	@GetMapping("/posts")
-	List<Post> findAll() {
-		return postRepo.findAll();
+	@GetMapping("/users/{userId}/posts")
+	List<Post> findAll(@PathVariable String userId) {
+		return postRepo.getByUserId(userId);
 	}
 	
-	@GetMapping("/posts/{id}")
-	Post findById(@PathVariable String id) {
-		return postRepo.findById(id).orElseThrow(()-> new PostNotFoundException(id));
+	@GetMapping("/users/{userId}/posts/{id}")
+	Post findById(@PathVariable String userId, @PathVariable String id) {
+		return postRepo.getPost(userId, id).orElseThrow(()-> new PostNotFoundException(id));
 	}
 	
-	@PostMapping("/posts")
+	@PostMapping("/users/{userId}/posts")
     @ResponseStatus(HttpStatus.CREATED)
-    Post save(@RequestBody @Valid Post post)
+    Post save(@PathVariable String userId, @RequestBody @Valid Post post)
     {
+		User u = userRepo.getById(userId);
+		post.setUser(u);
         return postRepo.save(post);
     }
 	
-	@PutMapping("/posts/{id}")
-	Post edit(@RequestBody Post newPost, @PathVariable String id) {
+	@PutMapping("/users/{userId}/posts/{id}")
+	Post edit(@RequestBody Post newPost, @PathVariable String userId, @PathVariable String id) {
 		return postRepo.findById(id).map(post -> {
-			post.setUser(newPost.getUser());
+//			post.setUser(newPost.getUser());
 			post.setTitle(newPost.getTitle());
 			post.setUpdated(LocalDateTime.now());
 			return postRepo.save(post);
 		}).orElseGet(()-> {
 			newPost.setId(id);
-			return save(newPost);
+			return save(userId, newPost);
 		});
 	}
 	
-	@DeleteMapping("/posts/{id}")
-	void delete(@PathVariable String id) {
-		postRepo.deleteById(id);
+	@DeleteMapping("/users/{userId}/posts/{id}")
+	void delete(@PathVariable String userId, String id) {
+		postRepo.deleteByUserId(userId, id);
 	}
 	
 

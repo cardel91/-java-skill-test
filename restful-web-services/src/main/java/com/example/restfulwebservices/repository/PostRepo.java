@@ -1,6 +1,7 @@
 package com.example.restfulwebservices.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -16,9 +17,12 @@ public interface PostRepo extends JpaRepository<Post, String>{
 
 	@Transactional
 	@Modifying
-	@Query("delete from Post f where f.user.id=:id")
-	void deleteByUserId(@Param("id") String id);
+	@Query("delete from Post f where f.user.id=:userId and f.id=:id" )
+	void deleteByUserId(@Param("userId") String userId, @Param("id") String id);
 	
 	@Query("select e from Post e where e.user.id=:id")
 	List<Post> getByUserId(@Param("id") String id);
+	
+	@Query("select e from Post e where e.id=:id and e.user.id=:userId")
+	Optional<Post> getPost(@Param("userId") String userId, @Param("id") String id);
 }

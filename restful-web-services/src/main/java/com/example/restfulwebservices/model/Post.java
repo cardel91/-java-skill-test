@@ -22,7 +22,7 @@ public class Post extends Model {
 	@ManyToOne()
 //	@MapsId
 	@JoinColumn(name="user_id")
-	@NotNull
+//	@NotNull
 	@JsonProperty("userId")
 	@JsonSerialize(using = ModelSerializer.class)
 	private User user;
